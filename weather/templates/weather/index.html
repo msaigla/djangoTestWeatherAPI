@@ -26,24 +26,42 @@
         <button class="btn btn-success" id="findWeatherButton" type="button" disabled>Weather</button>
     </div>
     <pre id="textWeather"></pre>
+    <div class="row">
+        <div class="col col-6">
+            <h4>Чаще всего cмотрят погоду в:</h4>
+            <table class="table table-dark table-striped">
+                <thead>
+                <tr>
+                    <th scope="col">Код страны</th>
+                    <th scope="col">Город</th>
+                    <th scope="col">Количество просмотров</th>
+                </tr>
+                </thead>
+                <tbody id="countSearchCity">
+                </tbody>
+            </table>
+        </div>
+        {% if request.user.is_authenticated %}
+            <div class="col col-6">
+                <h4>Ваша история поиска погоды:</h4>
+                <table class="table table-dark table-striped">
+                    <thead>
+                    <tr>
+                        <th scope="col">Код страны</th>
+                        <th scope="col">Город</th>
+                    </tr>
+                    </thead>
+                    <tbody id="historiesUser">
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
     <script src="{% static 'js/index.js' %}"></script>
-    <h4>Чаще всего cмотрят погоду в:</h4>
-    <table class="table table-dark table-striped">
-        <thead>
-        <tr>
-            <th scope="col">Код страны</th>
-            <th scope="col">Город</th>
-            <th scope="col">Количество просмотров</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for city in searched_cities %}
-            <tr>
-                <td>{{ city.country }}</td>
-                <td>{{ city.name }}</td>
-                <td>{{ city.count }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <script>
+    {% if request.user.is_authenticated %}
+        username = "{{ request.user.username }}";
+        historyUserWeather();
+    {% endif %}
+    </script>
 {% endblock %}

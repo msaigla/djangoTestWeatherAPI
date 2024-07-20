@@ -11,7 +11,7 @@ from retry_requests import retry
 from djangoTestWeatherAPI.settings import BASE_DIR
 
 from django.db.models import Q
-from .models import City
+from .models import City, WeatherSearchHistory
 
 
 def index(request):
@@ -54,6 +54,15 @@ def get_weather(request):
             values = json.load(f)
 
             val = values[int(request.GET["id"])]
+            if request.user.is_authenticated:
+                wsh = WeatherSearchHistory.objects.create(
+                    user=request.user,
+                    name=val['name'],
+                    country=request.GET["country"]
+                )
+                wsh.save()
+            else:
+                wsh = []
             try:
                 city = City.objects.get(name=val['name'], country=request.GET["country"])
                 city.count = city.count + 1
@@ -86,22 +95,12 @@ def get_weather(request):
             current_relative_humidity_2m = current.Variables(1).Value()
             current_rain = current.Variables(2).Value()
             current_wind_speed_10m = current.Variables(3).Value()
-
-            print(f"Current time {current.Time()}")
-            print(f"Current temperature_2m {current_temperature_2m}")
-            print(f"Current relative_humidity_2m {current_relative_humidity_2m}")
-            print(f"Current rain {current_rain}")
-            print(f"Current wind_speed_10m {current_wind_speed_10m}")
             text = f"Current time {current.Time()}<br>" \
                    f"Current temperature_2m {current_temperature_2m}<br>" \
                    f"Current relative_humidity_2m {current_relative_humidity_2m}<br>" \
                    f"Current rain {current_rain}<br>" \
                    f"Current wind_speed_10m {current_wind_speed_10m}<br>"
 
-            # weather = [current_temperature_2m, current_relative_humidity_2m, current_rain, current_wind_speed_10m]
-            weather = text
-
-            # Process hourly data. The order of variables needs to be the same as requested.
             hourly = response.Hourly()
             hourly_temperature_2m = hourly.Variables(0).ValuesAsNumpy()
 
@@ -113,7 +112,6 @@ def get_weather(request):
             ), "temperature_2m": hourly_temperature_2m}
 
             weather = pd.DataFrame(data=hourly_data)
-            print(weather)
 
     else:
         weather = []
@@ -123,5 +121,23 @@ def get_weather(request):
             .replace('date', 'Дата')
             .replace('temperature_2m', 'Температура ℃')
             .replace('\n', '<br>'),
-        'searched_cities': serializers.serialize('json', City.objects.order_by('-count'))
     }, status=200)
+
+
+def get_history_user_weather(request):
+    huw = []
+    if request.GET:
+        try:
+            huw = WeatherSearchHistory.objects.filter(
+                user__username=request.GET['username']
+            ).order_by('-id').values()
+            return JsonResponse({'histories': list(huw)}, status=200)
+        except:
+            return JsonResponse({'histories': huw}, status=200)
+    return JsonResponse({'histories': huw}, status=200)
+
+
+def count_search_city(request):
+    return JsonResponse({'cities': list(City.objects.order_by('-count').values())}, status=200)
+
+

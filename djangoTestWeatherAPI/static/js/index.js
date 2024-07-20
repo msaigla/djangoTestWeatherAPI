@@ -1,3 +1,5 @@
+var username = ""
+
 function changeCountry(value) {
     $("#citySelect2").val(null).trigger('change');
     $("#citySelect2").empty();
@@ -5,7 +7,7 @@ function changeCountry(value) {
         $.ajax({
             data: {text: $(value).val()}, // получаем данные формы
             type: 'GET', // GET или POST
-            url: "http://127.0.0.1:8000/get_cities/",
+            url: "/get_cities/",
             // если успешно, то
             success: function (response) {
                 let selected = "";
@@ -51,7 +53,7 @@ $("#findWeatherButton").click(function () {
             country: $("#countrySelect2").val(),
         }, // получаем данные формы
         type: 'GET', // GET или POST
-        url: "http://127.0.0.1:8000/get_weather/",
+        url: "/get_weather/",
         // если успешно, то
         success: function (response) {
             $("#textWeather").html(response.weather);
@@ -63,4 +65,68 @@ $("#findWeatherButton").click(function () {
             console.log(response.responseJSON.errors);
         }
     });
+    historyUserWeather();
+    countSearchCity();
 })
+
+function countSearchCity() {
+    console.log(username)
+    $('#countSearchCity').html('');
+    $.ajax({
+        data: {}, // получаем данные формы
+        type: 'GET', // GET или POST
+        url: "/count_search_city/",
+        // если успешно, то
+        success: function (response) {
+            console.log(response)
+            for (let i = 0; i < (response.cities).length; i++) {
+                $('#countSearchCity').append(
+                    '<tr>\
+                        <td>' + response.cities[i].country + '</td>\
+                            <td>' + response.cities[i].name + '</td>\
+                            <td>' + response.cities[i].count + '</td>\
+                         </tr>'
+                )
+            }
+        },
+        // если ошибка, то
+        error: function (response) {
+            // предупредим об ошибке
+            alert(response.responseJSON.errors);
+            console.log(response.responseJSON.errors);
+        }
+    });
+}
+
+countSearchCity()
+
+function historyUserWeather() {
+    console.log(username)
+    $('#historiesUser').html('');
+    if (username !== "") {
+        $.ajax({
+            data: {
+                username: username,
+            }, // получаем данные формы
+            type: 'GET', // GET или POST
+            url: "/get_history_user_weather/",
+            // если успешно, то
+            success: function (response) {
+                for (let i = 0; i < (response.histories).length; i++) {
+                    $('#historiesUser').append(
+                        '<tr>\
+                            <td>' + response.histories[i].country + '</td>\
+                            <td>' + response.histories[i].name + '</td>\
+                         </tr>'
+                    )
+                }
+            },
+            // если ошибка, то
+            error: function (response) {
+                // предупредим об ошибке
+                alert(response.responseJSON.errors);
+                console.log(response.responseJSON.errors);
+            }
+        });
+    }
+}
