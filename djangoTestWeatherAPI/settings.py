@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'weather.apps.WeatherConfig',
+    'users.apps.UsersConfig',
 ]
 
 MIDDLEWARE = [
@@ -139,3 +140,6 @@ MEDIA_ROOT = 'media'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_REDIRECT_URL = 'weather:main'
+LOGOUT_REDIRECT_URL = 'weather:main'

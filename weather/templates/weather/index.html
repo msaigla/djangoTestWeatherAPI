@@ -2,6 +2,16 @@
 {% load static %}
 
 {% block content %}
+    {% if request.user.is_authenticated %}
+        <form action="{% url 'users:logout' %}" method="post">
+            {% csrf_token %}
+            <button class="btn btn-primary" type="submit">Выйти</button>
+        </form>
+    {% else %}
+        <a class="btn btn-primary" aria-current="page" href="{% url 'users:register' %}">Регистрация</a>
+        <a class="btn btn-primary" aria-current="page" href="{% url 'users:login' %}">Войти</a>
+    {% endif %}
+    </ul>
     <h1>Test Weather</h1>
     <div class="input-group mb-3" style="max-width: 500px">
         <select onchange="changeCountry(this)" data-placeholder="Country" class="form-select" id="countrySelect2">
