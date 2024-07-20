@@ -1,0 +1,39 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+    <h1>Test Weather</h1>
+    <div class="input-group mb-3" style="max-width: 500px">
+        <select onchange="changeCountry(this)" data-placeholder="Country" class="form-select" id="countrySelect2">
+            <option selected></option>
+            {% for country in countries %}
+                <option value="{{ country.code }}">{{ country.name }} ({{ country.code }})</option>
+            {% endfor %}
+        </select>
+        <select onchange="changeCity(this)" data-placeholder="City" class="form-select" id="citySelect2">
+            <option selected></option>
+        </select>
+        <button class="btn btn-success" id="findWeatherButton" type="button" disabled>Weather</button>
+    </div>
+    <pre id="textWeather"></pre>
+    <script src="{% static 'js/index.js' %}"></script>
+    <h4>Чаще всего cмотрят погоду в:</h4>
+    <table class="table table-dark table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Код страны</th>
+            <th scope="col">Город</th>
+            <th scope="col">Количество просмотров</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for city in searched_cities %}
+            <tr>
+                <td>{{ city.country }}</td>
+                <td>{{ city.name }}</td>
+                <td>{{ city.count }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
